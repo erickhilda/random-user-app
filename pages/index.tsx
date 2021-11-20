@@ -34,9 +34,9 @@ const columns = [
 const Home: NextPage = () => {
   const [users, setUsers] = useState([]);
   const [metaData, setMetaData] = useState({});
-  async function fetchUsers() {
+  async function fetchUsers(page: number) {
     const response = await fetch(
-      "https://randomuser.me/api/?page=5&results=10&inc=name,gender,phone,email,registered"
+      `https://randomuser.me/api/?page=${page}&results=10&inc=name,gender,phone,email,registered&seed=p8sjmuu8r27aqdpc`
     );
     const data = await response.json();
     setUsers(data.results);
@@ -44,11 +44,11 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(1);
   }, []);
 
-  function onChangePage() {
-    fetchUsers();
+  function onChangePage(e: number) {
+    fetchUsers(e);
   }
 
   return (
