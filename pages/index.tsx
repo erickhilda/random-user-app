@@ -1,12 +1,13 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Table, Pagination } from "antd";
+import { Table, Pagination, Input, Select, Tag } from "antd";
 import { useEffect, useState } from "react";
+import dayjs from "dayjs";
 
 const columns = [
   {
     title: "Name",
-    dataIndex: ["name", "first"],
+    dataIndex: "name",
     key: "name",
   },
   {
@@ -16,13 +17,21 @@ const columns = [
   },
   {
     title: "Register Date",
-    dataIndex: ["registered", "date"],
+    dataIndex: "registered",
     key: "register",
   },
   {
     title: "Gender",
     dataIndex: "gender",
     key: "gender",
+    render: (gender: string) => {
+      let color = gender === 'female' ? "geekblue" : "green";
+      return (
+        <Tag color={color} key={gender}>
+          {gender.toUpperCase()}
+        </Tag>
+      );
+    },
   },
   {
     title: "Phone number",
@@ -31,25 +40,59 @@ const columns = [
   },
 ];
 
+export function serializeData(data: any) {
+  return data.map((user: any) => {
+    return {
+      ...user,
+      key: user.email,
+      name: `${user.name.first} ${user.name.last}`,
+      email: user.email,
+      registered: formatDate(user.registered.date),
+    };
+  });
+}
+
+export function formatDate(date: string) {
+  return dayjs(date).format("DD MMM YYYY");
+}
+
 const Home: NextPage = () => {
   const [users, setUsers] = useState([]);
-  const [metaData, setMetaData] = useState({});
-  async function fetchUsers(page: number) {
+  async function fetchUsers({
+    page,
+    gender,
+  }: {
+    page: number;
+    gender: string;
+  }) {
+    /**
+     * seed=p8sjmuu8r27aqdpc
+     * not using fix seed since it doesn't return data correctly while filter by gender
+     **/
     const response = await fetch(
-      `https://randomuser.me/api/?page=${page}&results=10&inc=name,gender,phone,email,registered&seed=p8sjmuu8r27aqdpc`
+      `https://randomuser.me/api/?page=${page}&results=10&inc=name,gender,phone,email,registered&gender=${gender}`
     );
     const data = await response.json();
-    setUsers(data.results);
-    setMetaData(data.info);
+    setUsers(serializeData(data.results));
+  }
+
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  function onChangePage(e: number) {
+    setCurrentPage(e);
+  }
+
+  const [selectedGender, setSelectedGender] = useState<string>("all");
+  function onSelectGender(e: string) {
+    setSelectedGender(e);
+  }
+
+  function onSearch(keyword: string) {
+    console.log(keyword);
   }
 
   useEffect(() => {
-    fetchUsers(1);
-  }, []);
-
-  function onChangePage(e: number) {
-    fetchUsers(e);
-  }
+    fetchUsers({ page: currentPage, gender: selectedGender });
+  }, [selectedGender, currentPage]);
 
   return (
     <div className="h-screen flex items-center justify-center">
@@ -63,19 +106,38 @@ const Home: NextPage = () => {
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold">Next.js</h1>
           <p className="text-xl">A simple starter for next.js</p>
-          <div className="mt-4">
-            <Table
-              columns={columns}
-              dataSource={users}
-              pagination={false}
-              scroll={{ y: 480 }}
-            />
-            <Pagination
-              defaultCurrent={1}
-              total={50}
-              onChange={onChangePage}
-              className="mt-4"
-            />
+          <div className="mt-4 flex flex-col">
+            <div className="w-1/2 grid grid-cols-2 gap-3">
+              <Input.Search
+                placeholder="input search text"
+                onSearch={onSearch}
+                enterButton
+              />
+              <Select
+                defaultValue="all"
+                style={{ width: 120 }}
+                placeholder="filter by gender"
+                onChange={onSelectGender}
+              >
+                <Select.Option value="all">All</Select.Option>
+                <Select.Option value="female">Female</Select.Option>
+                <Select.Option value="male">Male</Select.Option>
+              </Select>
+            </div>
+            <div className="mt-6">
+              <Table
+                columns={columns}
+                dataSource={users}
+                pagination={false}
+                scroll={{ y: 400 }}
+              />
+              <Pagination
+                defaultCurrent={1}
+                total={50}
+                onChange={onChangePage}
+                className="mt-4"
+              />
+            </div>
           </div>
         </div>
       </main>
