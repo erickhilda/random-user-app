@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import { Button } from "antd";
 
 const Home: NextPage = () => {
   return (
@@ -14,6 +15,7 @@ const Home: NextPage = () => {
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold">Next.js</h1>
           <p className="text-xl">A simple starter for next.js</p>
+          <Button type="primary">Primary Button</Button>
         </div>
       </main>
     </div>
