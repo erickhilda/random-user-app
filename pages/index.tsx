@@ -1,8 +1,56 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Button } from "antd";
+import { Table, Pagination } from "antd";
+import { useEffect, useState } from "react";
+
+const columns = [
+  {
+    title: "Name",
+    dataIndex: ["name", "first"],
+    key: "name",
+  },
+  {
+    dataIndex: "email",
+    title: "Email",
+    key: "email",
+  },
+  {
+    title: "Register Date",
+    dataIndex: ["registered", "date"],
+    key: "register",
+  },
+  {
+    title: "Gender",
+    dataIndex: "gender",
+    key: "gender",
+  },
+  {
+    title: "Phone number",
+    dataIndex: "phone",
+    key: "phone",
+  },
+];
 
 const Home: NextPage = () => {
+  const [users, setUsers] = useState([]);
+  const [metaData, setMetaData] = useState({});
+  async function fetchUsers(page: number) {
+    const response = await fetch(
+      `https://randomuser.me/api/?page=${page}&results=10&inc=name,gender,phone,email,registered&seed=p8sjmuu8r27aqdpc`
+    );
+    const data = await response.json();
+    setUsers(data.results);
+    setMetaData(data.info);
+  }
+
+  useEffect(() => {
+    fetchUsers(1);
+  }, []);
+
+  function onChangePage(e: number) {
+    fetchUsers(e);
+  }
+
   return (
     <div className="h-screen flex items-center justify-center">
       <Head>
@@ -15,7 +63,20 @@ const Home: NextPage = () => {
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold">Next.js</h1>
           <p className="text-xl">A simple starter for next.js</p>
-          <Button type="primary">Primary Button</Button>
+          <div className="mt-4">
+            <Table
+              columns={columns}
+              dataSource={users}
+              pagination={false}
+              scroll={{ y: 480 }}
+            />
+            <Pagination
+              defaultCurrent={1}
+              total={50}
+              onChange={onChangePage}
+              className="mt-4"
+            />
+          </div>
         </div>
       </main>
     </div>

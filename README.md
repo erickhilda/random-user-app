@@ -21,9 +21,9 @@ yarn dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## To Do List
-- [ ] Create layout and data table
-- [ ] fetch data from `https://randomuser.me/`
-- [ ] Add pagination for table
+- [x] Create layout and data table
+- [x] fetch data from [https://randomuser.me/](https://randomuser.me/)
+- [x] Add pagination for table
 - [ ] Add search by keyword amd filter by gender functionality
 - [ ] Add sort functionality
 - [ ] Add Reset Filter functionality
