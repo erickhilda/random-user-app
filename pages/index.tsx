@@ -1,66 +1,11 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import {
-  Table,
-  Pagination,
-  Input,
-  Select,
-  Tag,
-  Button,
-  notification,
-} from "antd";
+import { notification } from "antd";
+import DataTable from "../components/Table";
+import Filter from "../components/Filter";
 import { useEffect, useState } from "react";
 import { serializeData } from "../utils/serialized-data.util";
-import { Day } from "../utils/date.util";
 import { IUser, GenderType } from "../entities/user.entity";
-
-const columns = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    sorter: {
-      compare: (a: any, b: any) => {
-        return a.name.localeCompare(b.name);
-      },
-      multiple: 1,
-    },
-  },
-  {
-    dataIndex: "email",
-    title: "Email",
-    key: "email",
-  },
-  {
-    title: "Register Date",
-    dataIndex: "registered",
-    key: "register",
-    sorter: {
-      compare: (a: any, b: any) => {
-        return Day(a.registered).diff(b.registered);
-      },
-      multiple: 2,
-    },
-  },
-  {
-    title: "Gender",
-    dataIndex: "gender",
-    key: "gender",
-    render: (gender: GenderType) => {
-      let color = gender === "female" ? "geekblue" : "green";
-      return (
-        <Tag color={color} key={gender}>
-          {gender.toUpperCase()}
-        </Tag>
-      );
-    },
-  },
-  {
-    title: "Phone number",
-    dataIndex: "phone",
-    key: "phone",
-  },
-];
 
 const Home: NextPage = () => {
   const [users, setUsers] = useState<IUser[]>([]);
@@ -88,7 +33,7 @@ const Home: NextPage = () => {
       }
       setLoading(false);
     } catch (error) {
-      showErrorNotification('error');
+      showErrorNotification("error");
       setLoading(false);
     }
   }
@@ -111,7 +56,7 @@ const Home: NextPage = () => {
   }
 
   const [searchKeyword, setSearchKeyword] = useState<string>("");
-  const [seearchResult, setSearchResult] = useState<IUser[]>([]);
+  const [searchResult, setSearchResult] = useState<IUser[]>([]);
   function onSearch(keyword: string) {
     setSearchKeyword(keyword);
     const result = users.filter((user: IUser) => {
@@ -133,7 +78,10 @@ const Home: NextPage = () => {
     <div className="h-screen w-full flex items-center justify-center">
       <Head>
         <title>Random User App</title>
-        <meta name="description" content="Display data table from Rnadom user API" />
+        <meta
+          name="description"
+          content="Display data table from Rnadom user API"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -145,32 +93,13 @@ const Home: NextPage = () => {
             filter, and pagination
           </p>
           <div className="mt-4 flex flex-col">
-            <div className="w-2/3 grid grid-cols-3 gap-2">
-              <Input.Search
-                placeholder="Search by name"
-                onSearch={onSearch}
-                enterButton
-                allowClear
-                onChange={(e) => onSearch(e.target.value)}
-                value={searchKeyword}
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <Select
-                  defaultValue="all"
-                  placeholder="filter by gender"
-                  onChange={onSelectGender}
-                  value={selectedGender}
-                  className="w-full"
-                >
-                  <Select.Option value="all">All</Select.Option>
-                  <Select.Option value="female">Female</Select.Option>
-                  <Select.Option value="male">Male</Select.Option>
-                </Select>
-                <Button type="primary" onClick={resetFilter}>
-                  Reset Filter
-                </Button>
-              </div>
-            </div>
+            <Filter
+              onSearch={onSearch}
+              searchKeyword={searchKeyword}
+              onSelectGender={onSelectGender}
+              selectedGender={selectedGender}
+              resetFilter={resetFilter}
+            />
             {searchKeyword && (
               <div className="mt-4">
                 Display result from
@@ -180,18 +109,10 @@ const Home: NextPage = () => {
               </div>
             )}
             <div className="mt-6">
-              <Table
-                columns={columns}
-                dataSource={searchKeyword ? seearchResult : users}
-                pagination={false}
-                scroll={{ y: 400 }}
+              <DataTable
+                data={searchKeyword ? searchResult : users}
                 loading={loading}
-              />
-              <Pagination
-                defaultCurrent={1}
-                total={50}
-                onChange={onChangePage}
-                className="mt-4"
+                onChangePage={onChangePage}
               />
             </div>
           </div>
