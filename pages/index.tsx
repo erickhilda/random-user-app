@@ -1,78 +1,26 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { notification } from "antd";
 import DataTable from "../components/Table";
 import Filter from "../components/Filter";
-import { useEffect, useState } from "react";
-import { serializeData } from "../utils/serialized-data.util";
-import { IUser, GenderType } from "../entities/user.entity";
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext";
 
 const Home: NextPage = () => {
-  const [users, setUsers] = useState<IUser[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  async function fetchUsers({
-    page,
-    gender,
-  }: {
-    page: number;
-    gender: GenderType;
-  }) {
-    /**
-     * seed=p8sjmuu8r27aqdpc
-     * not using fix seed since it doesn't return data correctly while filter by gender
-     **/
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `https://randomuser.me/api/?page=${page}&results=10&inc=name,gender,phone,email,registered&gender=${gender}`
-      );
-      if (response.status === 200) {
-        const data = await response.json();
-        setUsers(serializeData(data.results));
-        onSearch(searchKeyword);
-      }
-      setLoading(false);
-    } catch (error) {
-      showErrorNotification("error");
-      setLoading(false);
-    }
-  }
+  const {
+    users,
+    loading,
 
-  function showErrorNotification(type: "success" | "error") {
-    notification[type]({
-      message: "Something went wrong",
-      description: "Please check your internet connection.",
-    });
-  }
+    onChangePage,
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  function onChangePage(e: number) {
-    setCurrentPage(e);
-  }
+    onSelectGender,
+    selectedGender,
 
-  const [selectedGender, setSelectedGender] = useState<GenderType>("all");
-  function onSelectGender(e: GenderType) {
-    setSelectedGender(e);
-  }
+    searchKeyword,
+    searchResult,
+    onSearch,
 
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
-  const [searchResult, setSearchResult] = useState<IUser[]>([]);
-  function onSearch(keyword: string) {
-    setSearchKeyword(keyword);
-    const result = users.filter((user: IUser) => {
-      return user.name.toLowerCase().includes(keyword.toLowerCase());
-    });
-    setSearchResult(result);
-  }
-
-  useEffect(() => {
-    fetchUsers({ page: currentPage, gender: selectedGender });
-  }, [selectedGender, currentPage]);
-
-  function resetFilter() {
-    setSearchKeyword("");
-    setSelectedGender("all");
-  }
+    resetFilter,
+  } = useContext(UserContext);
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
