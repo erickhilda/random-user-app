@@ -93,22 +93,25 @@ const Home: NextPage = () => {
     setCurrentPage(e);
   }
 
-  const [selectedGender, setSelectedGender] = useState<string>("all");
+  const [selectedGender, setSelectedGender] = useState<string>("");
   function onSelectGender(e: string) {
     setSelectedGender(e);
   }
 
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [seearchResult, setSearchResult] = useState<any[]>([]);
   function onSearch(keyword: string) {
-    console.log(keyword);
+    setSearchKeyword(keyword);
+    const result = users.filter((user: any) => {
+      return user.name.includes(keyword);
+    });
+    setSearchResult(result);
+    console.log(keyword, result);
   }
 
   useEffect(() => {
     fetchUsers({ page: currentPage, gender: selectedGender });
   }, [selectedGender, currentPage]);
-
-  // function onChangeTable(pagination, filters, sorter, extra) {
-  //   console.log("params", pagination, filters, sorter, extra);
-  // }
 
   return (
     <div className="h-screen flex items-center justify-center">
@@ -125,9 +128,10 @@ const Home: NextPage = () => {
           <div className="mt-4 flex flex-col">
             <div className="w-1/2 grid grid-cols-2 gap-3">
               <Input.Search
-                placeholder="input search text"
+                placeholder="Search by name"
                 onSearch={onSearch}
                 enterButton
+                allowClear
               />
               <Select
                 defaultValue="all"
@@ -140,13 +144,20 @@ const Home: NextPage = () => {
                 <Select.Option value="male">Male</Select.Option>
               </Select>
             </div>
+            {searchKeyword && (
+              <div className="mt-4">
+                Display result from
+                <span className="text-xs font-bold text-gray-400 bg-gray-200 p-2 ml-2 rounded">
+                  {searchKeyword}
+                </span>
+              </div>
+            )}
             <div className="mt-6">
               <Table
                 columns={columns}
-                dataSource={users}
+                dataSource={searchKeyword ? seearchResult : users}
                 pagination={false}
                 scroll={{ y: 400 }}
-                // onChange={onChangeTable}
               />
               <Pagination
                 defaultCurrent={1}
