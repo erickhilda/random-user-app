@@ -25,7 +25,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] fetch data from [https://randomuser.me/](https://randomuser.me/)
 - [x] Add pagination for table
 - [x] Add filter by gender functionality
-- [ ] Add search by keyword functionality
+- [x] Add search by keyword functionality
 - [x] Add sort functionality
-- [ ] Add Reset Filter functionality
+- [x] Add Reset Filter functionality
 - [ ] Implenet Unit/Integration test
