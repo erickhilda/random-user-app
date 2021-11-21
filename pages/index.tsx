@@ -9,6 +9,12 @@ const columns = [
     title: "Name",
     dataIndex: "name",
     key: "name",
+    sorter: {
+      compare: (a: any, b: any) => {
+        return a.name.localeCompare(b.name);
+      },
+      multiple: 1,
+    },
   },
   {
     dataIndex: "email",
@@ -19,13 +25,19 @@ const columns = [
     title: "Register Date",
     dataIndex: "registered",
     key: "register",
+    sorter: {
+      compare: (a: any, b: any) => {
+        return dayjs(a.registered).diff(b.registered);
+      },
+      multiple: 2,
+    },
   },
   {
     title: "Gender",
     dataIndex: "gender",
     key: "gender",
     render: (gender: string) => {
-      let color = gender === 'female' ? "geekblue" : "green";
+      let color = gender === "female" ? "geekblue" : "green";
       return (
         <Tag color={color} key={gender}>
           {gender.toUpperCase()}
@@ -94,6 +106,10 @@ const Home: NextPage = () => {
     fetchUsers({ page: currentPage, gender: selectedGender });
   }, [selectedGender, currentPage]);
 
+  // function onChangeTable(pagination, filters, sorter, extra) {
+  //   console.log("params", pagination, filters, sorter, extra);
+  // }
+
   return (
     <div className="h-screen flex items-center justify-center">
       <Head>
@@ -130,6 +146,7 @@ const Home: NextPage = () => {
                 dataSource={users}
                 pagination={false}
                 scroll={{ y: 400 }}
+                // onChange={onChangeTable}
               />
               <Pagination
                 defaultCurrent={1}
