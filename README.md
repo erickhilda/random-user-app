@@ -26,6 +26,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [x] Add pagination for table
 - [x] Add filter by gender functionality
 - [ ] Add search by keyword functionality
-- [ ] Add sort functionality
+- [x] Add sort functionality
 - [ ] Add Reset Filter functionality
 - [ ] Implenet Unit/Integration test
