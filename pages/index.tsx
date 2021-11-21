@@ -2,7 +2,9 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { Table, Pagination, Input, Select, Tag, Button } from "antd";
 import { useEffect, useState } from "react";
-import dayjs from "dayjs";
+import { serializeData } from "../utils/serialized-data.util";
+import { Day } from "../utils/date.util";
+import { IUser, GenderType } from "../entities/user.entity";
 
 const columns = [
   {
@@ -27,7 +29,7 @@ const columns = [
     key: "register",
     sorter: {
       compare: (a: any, b: any) => {
-        return dayjs(a.registered).diff(b.registered);
+        return Day(a.registered).diff(b.registered);
       },
       multiple: 2,
     },
@@ -36,7 +38,7 @@ const columns = [
     title: "Gender",
     dataIndex: "gender",
     key: "gender",
-    render: (gender: string) => {
+    render: (gender: GenderType) => {
       let color = gender === "female" ? "geekblue" : "green";
       return (
         <Tag color={color} key={gender}>
@@ -52,30 +54,14 @@ const columns = [
   },
 ];
 
-export function serializeData(data: any) {
-  return data.map((user: any) => {
-    return {
-      ...user,
-      key: user.email,
-      name: `${user.name.first} ${user.name.last}`,
-      email: user.email,
-      registered: formatDate(user.registered.date),
-    };
-  });
-}
-
-export function formatDate(date: string) {
-  return dayjs(date).format("DD MMM YYYY");
-}
-
 const Home: NextPage = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<IUser[]>([]);
   async function fetchUsers({
     page,
     gender,
   }: {
     page: number;
-    gender: string;
+    gender: GenderType;
   }) {
     /**
      * seed=p8sjmuu8r27aqdpc
@@ -93,16 +79,16 @@ const Home: NextPage = () => {
     setCurrentPage(e);
   }
 
-  const [selectedGender, setSelectedGender] = useState<string>("all");
-  function onSelectGender(e: string) {
+  const [selectedGender, setSelectedGender] = useState<GenderType>("all");
+  function onSelectGender(e: GenderType) {
     setSelectedGender(e);
   }
 
   const [searchKeyword, setSearchKeyword] = useState<string>("");
-  const [seearchResult, setSearchResult] = useState<any[]>([]);
+  const [seearchResult, setSearchResult] = useState<IUser[]>([]);
   function onSearch(keyword: string) {
     setSearchKeyword(keyword);
-    const result = users.filter((user: any) => {
+    const result = users.filter((user: IUser) => {
       return user.name.includes(keyword);
     });
     setSearchResult(result);
@@ -113,7 +99,7 @@ const Home: NextPage = () => {
     fetchUsers({ page: currentPage, gender: selectedGender });
   }, [selectedGender, currentPage]);
 
-  function resetSearch() {
+  function resetFilter() {
     setSearchKeyword("");
     setSelectedGender("all");
   }
@@ -129,9 +115,12 @@ const Home: NextPage = () => {
       <main className="h-full w-2/3 py-8 flex flex-col items-center">
         <div className="flex flex-col items-center">
           <h1 className="text-4xl font-bold">Data Table Demonstrations</h1>
-          <p className="text-xl">A simple app for displaying data table with fucntionality to search, filter, and pagination</p>
+          <p className="text-xl">
+            A simple app for displaying data table with fucntionality to search,
+            filter, and pagination
+          </p>
           <div className="mt-4 flex flex-col">
-            <div className="w-2/3 grid grid-cols-3 gap-3">
+            <div className="w-2/3 grid grid-cols-3 gap-2">
               <Input.Search
                 placeholder="Search by name"
                 onSearch={onSearch}
@@ -140,19 +129,19 @@ const Home: NextPage = () => {
                 onChange={(e) => onSearch(e.target.value)}
                 value={searchKeyword}
               />
-              <div className='grid grid-cols-2'>
+              <div className="grid grid-cols-2 gap-2">
                 <Select
                   defaultValue="all"
-                  style={{ width: 120 }}
                   placeholder="filter by gender"
                   onChange={onSelectGender}
                   value={selectedGender}
+                  className="w-full"
                 >
                   <Select.Option value="all">All</Select.Option>
                   <Select.Option value="female">Female</Select.Option>
                   <Select.Option value="male">Male</Select.Option>
                 </Select>
-                <Button type="primary" onClick={resetSearch}>
+                <Button type="primary" onClick={resetFilter}>
                   Reset Filter
                 </Button>
               </div>
@@ -171,7 +160,6 @@ const Home: NextPage = () => {
                 dataSource={searchKeyword ? seearchResult : users}
                 pagination={false}
                 scroll={{ y: 400 }}
-                // onChange={onChangeTable}
               />
               <Pagination
                 defaultCurrent={1}
