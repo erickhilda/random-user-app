@@ -20,6 +20,21 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+To run the integration tests, run:
+
+```bash
+# Make sure the web was already running before you run the tests
+# run with cypress UI
+npm run cy:open
+# or
+yarn cy:open
+
+# run cypress without it's UI
+npm run cy:run
+# or
+yarn cy:run
+```
+
 ## To Do List
 - [x] Create layout and data table
 - [x] fetch data from [https://randomuser.me/](https://randomuser.me/)
